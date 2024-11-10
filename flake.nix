@@ -55,16 +55,13 @@
         ];
         nativeBuildInputs = with pkgs; [
         ];
-        # src = /home/ubuntu/MuST;
         src = pkgs.fetchzip
           {
             url = "https://github.com/controny/MuST/archive/refs/heads/master.zip";
             hash = "sha256-CsdwU+BRNeVM3oABhk1u20Lre9tHG1kAXXdBtmpMj6M=";
           };
         buildPhase = ''
-          # BUILD_DIR=$(pwd)
-          # BUILD_DIR=/tmp/nix-fixed-build.drv/source
-          BUILD_DIR=/tmp/nix-build-must.drv-3/source
+          BUILD_DIR=$(pwd)
           echo "BUILD_DIR = $BUILD_DIR"
 
           # install libtirpc
@@ -80,21 +77,10 @@
 
           export XDR_INCLUDE=$BUILD_DIR/libtirpc/include/tirpc/rpc
           export HOME=$BUILD_DIR
+          export FCFLAGS="-fallow-argument-mismatch"
 
           cd $BUILD_DIR
 
-          export FCFLAGS="-fallow-argument-mismatch"
-
-          # make ubuntu-gnu-nogpu \
-          #   FC="mpif90" \
-          #   FPPDEFS="-cpp" \
-          #   FFLAGS="-c -O3 -I. -fallow-argument-mismatch -lblas -llapack -lscalapack" \
-          #   CC="mpicc" \
-          #   ARCHV="ar -r" \
-          #   LIBXC_PATH="$BUILD_DIR/external/libxc/LibXC/" \
-          #   FFTW_PATH="$BUILD_DIR/external/fftw/FFTW/" \
-          #   P3DFFT_PATH="$BUILD_DIR/external/p3dfft/P3DFFT/" \
-          #   MKLPATH=""
           make ubuntu-gnu-nogpu \
             FFLAGS="-c -O3 -I. -fallow-argument-mismatch -lblas -llapack -lscalapack" \
             CPPDEFS=""
