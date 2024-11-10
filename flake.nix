@@ -62,59 +62,46 @@
             hash = "sha256-CsdwU+BRNeVM3oABhk1u20Lre9tHG1kAXXdBtmpMj6M=";
           };
         buildPhase = ''
-          FIXED_BUILD_DIR=/tmp/nix-fixed-build.drv
-          cd $FIXED_BUILD_DIR
-
-          echo current dir
-          pwd
-
-          # install librpc
-          # wget https://github.com/johnandersen777/librpc/archive/refs/heads/master.zip --no-check-certificate
-          # unzip master.zip
-          # cd librpc-master
-          # autoreconf -i
-          # mkdir -p $FIXED_BUILD_DIR/librpc
-          # ./configure --prefix=$FIXED_BUILD_DIR/librpc
-          # make
-          # make install
-          # echo 'finish installing librpc'
+          # BUILD_DIR=$(pwd)
+          # BUILD_DIR=/tmp/nix-fixed-build.drv/source
+          BUILD_DIR=/tmp/nix-build-must.drv-3/source
+          echo "BUILD_DIR = $BUILD_DIR"
 
           # install libtirpc
-          # wget https://github.com/couchbasedeps/libtirpc/archive/refs/heads/master.zip --no-check-certificate -O libtirpc.zip
-          # unzip libtirpc.zip
-          # cd libtirpc-master
-          # autoreconf -i
-          # mkdir -p $FIXED_BUILD_DIR/libtirpc
-          # ./configure --prefix=$FIXED_BUILD_DIR/libtirpc
-          # make
-          # make install
-          # echo 'finish installing libtirpc'
+          wget https://github.com/couchbasedeps/libtirpc/archive/refs/heads/master.zip --no-check-certificate -O libtirpc.zip
+          unzip libtirpc.zip
+          cd libtirpc-master
+          autoreconf -i
+          mkdir -p $BUILD_DIR/libtirpc
+          ./configure --prefix=$BUILD_DIR/libtirpc
+          make
+          make install
+          echo 'finish installing libtirpc'
 
-          # export C_INCLUDE_PATH=$FIXED_BUILD_DIR/librpc/include:$FIXED_BUILD_DIR/libtirpc/include/tirpc:$C_INCLUDE_PATH
-          # export LIBRARY_PATH=$FIXED_BUILD_DIR/librpc/lib:$FIXED_BUILD_DIR/libtirpc/lib:$LIBRARY_PATH
-          # export LD_LIBRARY_PATH=$FIXED_BUILD_DIR/librpc/lib:$FIXED_BUILD_DIR/libtirpc/lib:$LD_LIBRARY_PATH
-          # export PATH=$FIXED_BUILD_DIR/libtirpc/bin:$PATH
+          export XDR_INCLUDE=$BUILD_DIR/libtirpc/include/tirpc/rpc
+          export HOME=$BUILD_DIR
 
-          export XDR_INCLUDE=$FIXED_BUILD_DIR/libtirpc/include/tirpc/rpc
-          # export XDR_LIB=$FIXED_BUILD_DIR/libtirpc/lib
+          cd $BUILD_DIR
 
-          cd $FIXED_BUILD_DIR/source
+          export FCFLAGS="-fallow-argument-mismatch"
 
-          # clear
-          # cd MST/src
-          # make clear
-          # cd $FIXED_BUILD_DIR/source
-
-          export HOME=$FIXED_BUILD_DIR
-
-          make ubuntu-gnu-nogpu MST \
-            FFLAGS="-c -O3 -I. -fallow-argument-mismatch -lblas -llapack" \
-            LIBS="-lblas -llapack -lscalapack" \
-            CFLAGS="-c -O3 -I$FIXED_BUILD_DIR/libtirpc/include/tirpc -L$FIXED_BUILD_DIR/libtirpc/lib -ltirpc -DNoXDR_format"
-          
+          # make ubuntu-gnu-nogpu \
+          #   FC="mpif90" \
+          #   FPPDEFS="-cpp" \
+          #   FFLAGS="-c -O3 -I. -fallow-argument-mismatch -lblas -llapack -lscalapack" \
+          #   CC="mpicc" \
+          #   ARCHV="ar -r" \
+          #   LIBXC_PATH="$BUILD_DIR/external/libxc/LibXC/" \
+          #   FFTW_PATH="$BUILD_DIR/external/fftw/FFTW/" \
+          #   P3DFFT_PATH="$BUILD_DIR/external/p3dfft/P3DFFT/" \
+          #   MKLPATH=""
+          make ubuntu-gnu-nogpu \
+            FFLAGS="-c -O3 -I. -fallow-argument-mismatch -lblas -llapack -lscalapack" \
+            CPPDEFS=""
           make install
 
-          touch $out
+          mkdir -p $out/bin
+          cp bin/* $out/bin
 
         '';
         phases = [ "unpackPhase" "buildPhase" ];
