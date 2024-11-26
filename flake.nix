@@ -25,57 +25,77 @@
       config = nixpkgs.lib.trivial.importJSON ./config.json;
       shell = shell-utils.myShell.${system};
 
+      tirpc = pkgs.stdenv.mkDerivation {
+        name = "tirpc";
+        buildInputs = [
+          pkgs.cmake
+          pkgs.autoconf
+          pkgs.automake
+          pkgs.libpkgconf
+          pkgs.pkgconf
+          pkgs.libtool
+          pkgs.libtirpc
+        ];
+        src = pkgs.fetchzip
+          {
+            url = "https://github.com/couchbasedeps/libtirpc/archive/refs/heads/master.zip";
+            hash = "sha256-6ozoxgqbUv+Os6o73XIy+UdJg8qyhRhtifRpBN2mi1M=";
+          };
+        buildPhase = ''
+          echo "out = $out"
+
+          mkdir -p $out/libtirpc
+          autoreconf -i
+          ./configure --prefix=$out/libtirpc
+          make
+          make install
+          echo 'finish installing libtirpc'
+        '';
+        phases = [ "unpackPhase" "buildPhase" ];
+      };
+
       app = pkgs.stdenv.mkDerivation {
         name = "must";
-        buildInputs = with pkgs; [
-          openssl
-          git
-          openmpi
-          mpich
-          cmake
-          zsh
-          gfortran
-          ps
-          libxc
-          libtirpc
-          fftwMpi
-          autoconf
-          automake
-          hdf5-fortran
-          blas
-          lapack
-          libpkgconf
-          pkgconf
-          libtool
-          perl
-          wget
-          unzip
-          ntirpc
-          scalapack
+        buildInputs = [
+          tirpc
+          pkgs.openssl
+          pkgs.git
+          pkgs.openmpi
+          pkgs.mpich
+          pkgs.cmake
+          pkgs.zsh
+          pkgs.gfortran
+          pkgs.ps
+          pkgs.libxc
+          pkgs.libtirpc
+          pkgs.fftwMpi
+          pkgs.autoconf
+          pkgs.automake
+          pkgs.hdf5-fortran
+          pkgs.blas
+          pkgs.lapack
+          pkgs.libpkgconf
+          pkgs.pkgconf
+          pkgs.libtool
+          pkgs.perl
+          pkgs.wget
+          pkgs.unzip
+          pkgs.ntirpc
+          pkgs.scalapack
         ];
         nativeBuildInputs = with pkgs; [
         ];
         src = pkgs.fetchzip
           {
-            url = "https://github.com/controny/MuST/archive/refs/heads/master.zip";
-            hash = "sha256-CsdwU+BRNeVM3oABhk1u20Lre9tHG1kAXXdBtmpMj6M=";
+            url = "https://github.com/controny/MuST/archive/refs/tags/v1.0.0.zip";
+            hash = "sha256-Nh6OAuZmuWRybK/90Vp8uQDCZQc5wtOmuiIFJrI6Qk0=";
           };
         buildPhase = ''
           BUILD_DIR=$(pwd)
           echo "BUILD_DIR = $BUILD_DIR"
 
-          # install libtirpc
-          wget https://github.com/couchbasedeps/libtirpc/archive/refs/heads/master.zip --no-check-certificate -O libtirpc.zip
-          unzip libtirpc.zip
-          cd libtirpc-master
-          autoreconf -i
-          mkdir -p $BUILD_DIR/libtirpc
-          ./configure --prefix=$BUILD_DIR/libtirpc
-          make
-          make install
-          echo 'finish installing libtirpc'
-
-          export XDR_INCLUDE=$BUILD_DIR/libtirpc/include/tirpc/rpc
+          export XDR_INCLUDE=${tirpc}/libtirpc/include/tirpc/rpc
+          echo "XDR_INCLUDE = $XDR_INCLUDE"
           export HOME=$BUILD_DIR
           export FCFLAGS="-fallow-argument-mismatch"
 
@@ -101,7 +121,7 @@
       devShells = {
         default = shell {
           name = "MuST";
-          packages = [ app ];
+          packages = [ tirpc app ];
         };
       };
     });
