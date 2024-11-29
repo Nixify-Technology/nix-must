@@ -24,6 +24,7 @@
 
       config = nixpkgs.lib.trivial.importJSON ./config.json;
       shell = shell-utils.myShell.${system};
+      mpi = intel-mpi.packages.${system}.default;
 
       tirpc = pkgs.stdenv.mkDerivation {
         name = "tirpc";
@@ -61,7 +62,7 @@
           pkgs.openssl
           pkgs.git
           pkgs.openmpi
-          pkgs.mpich
+          mpi
           pkgs.cmake
           pkgs.zsh
           pkgs.gfortran
@@ -85,6 +86,7 @@
         ];
         nativeBuildInputs = with pkgs; [
         ];
+        runtimeDependencies = [ mpi ];
         src = pkgs.fetchzip
           {
             url = "https://github.com/controny/MuST/archive/refs/tags/v1.0.0.zip";
