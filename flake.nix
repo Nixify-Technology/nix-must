@@ -73,8 +73,6 @@
           pkgs.autoconf
           pkgs.automake
           pkgs.hdf5-fortran
-          pkgs.blas
-          pkgs.lapack
           pkgs.libpkgconf
           pkgs.pkgconf
           pkgs.libtool
@@ -82,15 +80,15 @@
           pkgs.wget
           pkgs.unzip
           pkgs.ntirpc
-          pkgs.scalapack
+          pkgs.mkl
         ];
         nativeBuildInputs = with pkgs; [
         ];
         runtimeDependencies = [ mpi ];
         src = pkgs.fetchzip
           {
-            url = "https://github.com/controny/MuST/archive/refs/tags/v1.0.0.zip";
-            hash = "sha256-Nh6OAuZmuWRybK/90Vp8uQDCZQc5wtOmuiIFJrI6Qk0=";
+            url = "https://github.com/controny/MuST/archive/refs/tags/v1.1.0.zip";
+            hash = "sha256-JdXt6AhnQf86BasVtbYmqA4iTOhd6Ht6b9dajDYqecA=";
           };
         buildPhase = ''
           BUILD_DIR=$(pwd)
@@ -104,7 +102,7 @@
           cd $BUILD_DIR
 
           make ubuntu-gnu-nogpu \
-            FFLAGS="-c -O3 -I. -fallow-argument-mismatch -lblas -llapack -lscalapack" \
+            FFLAGS="-c -O3 -I. -fallow-argument-mismatch -lmkl_rt -lmkl_scalapack_lp64" \
             CPPDEFS=""
           make install
 
