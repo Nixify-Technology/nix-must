@@ -24,7 +24,7 @@
 
       config = nixpkgs.lib.trivial.importJSON ./config.json;
       shell = shell-utils.myShell.${system};
-      mpi = intel-mpi.packages.${system}.default;
+      intelmpi = intel-mpi.packages.${system}.default;
 
       tirpc = pkgs.stdenv.mkDerivation {
         name = "tirpc";
@@ -59,17 +59,15 @@
         name = "must";
         buildInputs = [
           tirpc
+          intelmpi
           pkgs.openssl
           pkgs.git
-          pkgs.openmpi
-          mpi
           pkgs.cmake
           pkgs.zsh
           pkgs.gfortran
           pkgs.ps
           pkgs.libxc
           pkgs.libtirpc
-          pkgs.fftwMpi
           pkgs.autoconf
           pkgs.automake
           pkgs.hdf5-fortran
@@ -84,7 +82,6 @@
         ];
         nativeBuildInputs = with pkgs; [
         ];
-        runtimeDependencies = [ mpi ];
         src = pkgs.fetchzip
           {
             url = "https://github.com/controny/MuST/archive/refs/tags/v1.1.0.zip";
