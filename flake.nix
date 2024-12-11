@@ -60,7 +60,6 @@
           tirpc
           pkgs.openssl
           pkgs.git
-          pkgs.openmpi
           pkgs.mpich
           pkgs.cmake
           pkgs.zsh
@@ -68,7 +67,6 @@
           pkgs.ps
           pkgs.libxc
           pkgs.libtirpc
-          pkgs.fftwMpi
           pkgs.autoconf
           pkgs.automake
           pkgs.hdf5-fortran
