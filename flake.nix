@@ -85,8 +85,8 @@
         ];
         src = pkgs.fetchzip
           {
-            url = "https://github.com/controny/MuST/archive/refs/tags/v1.0.0.zip";
-            hash = "sha256-Nh6OAuZmuWRybK/90Vp8uQDCZQc5wtOmuiIFJrI6Qk0=";
+            url = "https://github.com/mstsuite/MuST/archive/refs/tags/v1.9.4.10.zip";
+            hash = "sha256-E75N2JzWnT4jKZ71tbdCcYJssQwLGOyt68TAMVqV9HI=";
           };
         buildPhase = ''
           BUILD_DIR=$(pwd)
@@ -98,6 +98,10 @@
           export FCFLAGS="-fallow-argument-mismatch"
 
           cd $BUILD_DIR
+
+          # code changes
+          sed -i 's|CFLAGS += $(PREPROC_CFLAGS) -c|CFLAGS += $(PREPROC_CFLAGS) -c -DNoXDR_format|' MST/Makefile
+          sed -i 's|-lscalapack-mpich|-lscalapack -ltirpc|' architecture/ubuntu-gnu-nogpu
 
           make ubuntu-gnu-nogpu \
             FFLAGS="-c -O3 -I. -fallow-argument-mismatch -lblas -llapack -lscalapack" \
