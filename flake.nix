@@ -20,6 +20,7 @@
       # Standard nix packages
       pkgs = import nixpkgs {
         inherit system;
+        config.allowUnfree = true;
       };
 
       config = nixpkgs.lib.trivial.importJSON ./config.json;

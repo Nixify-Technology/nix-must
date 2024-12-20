@@ -3,6 +3,6 @@
 ## Usage
 
 ```
-NIXPKGS_ALLOW_UNFREE=1 nix build --impure
+nix build
 ./result/bin/mst2
 ```
